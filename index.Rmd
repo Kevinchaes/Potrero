@@ -1,0 +1,79 @@
+---
+title: "Venta de propiedad Potrero Grande"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+[Ubicación Maps de Goolge](https://goo.gl/maps/73S48NbywXtkQPmu6)
+[Ubicación Maps de Goolge](https://waze.com/ul/hd1sg7kz1n)
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(leaflet)
+library(leaflet.extras)
+library(tidyverse)
+library(sf)
+
+planos <- sf::st_read("C:/Users/Kevin/OneDrive - ucr.ac.cr/Repositorios/Potrero/finca.shp") %>%
+  st_transform(4326) %>%
+  st_make_valid()
+
+puntos <- st_read("punto.shp")%>%
+  st_transform(4326) %>%
+  st_make_valid()
+
+ruta <- st_read("Ruta.shp")%>%
+  st_transform(4326) %>%
+  st_make_valid()
+
+camino <- st_read("Caminos.shp")%>%
+  st_transform(4326) %>%
+  st_make_valid()
+
+```
+
+Row {data-weight=700}
+-----------------------------------------------------------------------
+
+### Fincas en venta, dar click sobre finca para desplegar información, arrastrar mapa para ver otros detalles
+
+```{r}
+leaflet() %>%
+  fitBounds(lng1 = -83.17, lng2 = -83.16, lat1 = 9.04, lat2 = 9.03) %>%
+  addTiles(urlTemplate ="https://mts1.google.com/vt/lyrs=s&hl=en&src=app&x={x}&y={y}&z={z}&s=G", attribution = 'Google', group = "Google Maps") %>%
+  addMarkers(data= puntos,
+             group = "Distrito",
+             popup = paste(
+               "Distrito: ", puntos$Lugar, "<br>")) %>%
+  addPolygons(
+    data = planos,
+    stroke=T, fillOpacity = 0,
+    color="red", weight=1.5, opacity= 2.0,
+    group = "Fincas",
+    popup = paste(
+      "Provincia: ", planos$Provincia, "<br>",
+      "Cantón: ", planos$Cantón, "<br>",
+      "Distrito: ", planos$Distrito, "<br>",
+      "Contacto: ", planos$Persona, "<br>",
+      "Telefono: ", planos$Contacto, "<br>",
+      "Plano: ", planos$Plano, "<br>",
+      "Tamaño (ha): ", planos$Hectareas, "<br>")) %>%
+  addPolylines(data = camino, color = "black",
+                 fill = FALSE, fillColor = "black", stroke = T,
+                 weight = 3, group = "Red Vial",
+                 smoothFactor = 0) %>%
+  addPolylines(data = ruta, color = "blue",
+                 fill = FALSE, fillColor = "blue", stroke = T,
+                 weight = 3, group = "Red Vial",
+                 smoothFactor = 0) %>%
+  addLayersControl(baseGroups = c("Google Maps"),
+                   overlayGroups = c("Distrito", "Fincas", "Red Vial", "Ruta a fincas"),
+                   options = layersControlOptions(collapsed = TRUE))  %>%
+  addScaleBar() %>%
+  addMiniMap(
+    toggleDisplay = TRUE,
+    position = "bottomleft",
+    tiles = providers$OpenStreetMap.Mapnik)
+
+```
