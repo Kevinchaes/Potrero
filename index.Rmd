@@ -6,7 +6,7 @@ output:
     vertical_layout: fill
 ---
 [Ubicación Maps de Goolge](https://goo.gl/maps/73S48NbywXtkQPmu6)
-[Ubicación Maps de Goolge](https://waze.com/ul/hd1sg7kz1n)
+[Ubicación Waze](https://waze.com/ul/hd1sg7kz1n)
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
@@ -66,7 +66,8 @@ leaflet() %>%
   addPolylines(data = ruta, color = "blue",
                  fill = FALSE, fillColor = "blue", stroke = T,
                  weight = 3, group = "Red Vial",
-                 smoothFactor = 0) %>%
+                 smoothFactor = 0,
+               popup = paste("Distancia (Km): ", ruta$longitud, "<br>")) %>%
   addLayersControl(baseGroups = c("Google Maps"),
                    overlayGroups = c("Distrito", "Fincas", "Red Vial", "Ruta a fincas"),
                    options = layersControlOptions(collapsed = TRUE))  %>%
